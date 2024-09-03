@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("깃허브 협업 T41231EST2~~"),),
+      appBar: AppBar(title: Text("깃허브 협업 ..."),),
     );
   }
 }
