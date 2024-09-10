@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // provider 사용
+import 'package:provider/provider.dart';  // provider 사용
 
 void main() {
   runApp( ChangeNotifierProvider(
