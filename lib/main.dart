@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         home: Scaffold(
           body: [Home(), Community(), My()][context.watch<Store1>().tab],
           bottomNavigationBar: BottomNavigationBar(
-            showUnselectedLabels: false, // false인데 왜 보이지;;
+            showUnselectedLabels: false,
             showSelectedLabels: false,
             unselectedItemColor: Colors.grey,
             selectedItemColor: Colors.black,
