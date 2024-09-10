@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';  // provider 사용
 
-void main() {
-  runApp( ChangeNotifierProvider(
-    create: (c) => Store1(),
-    child: MaterialApp(
-      //theme: style.theme,
-        home: const MyApp()
-    ),
-  ));
-}
 
-class MyApp extends StatelessWidget {
+//githubtest
+void main() {
+  runApp(const MyApp());
+
+  class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
@@ -85,100 +80,5 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Text('아직 아무것도...');
   }
-}
-
-// 글들 띄우는 위젯
-class Community extends StatelessWidget {
-  const Community({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(actions: [IconButton(onPressed: (){
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Upload()),
-        );
-      }, icon: Icon(Icons.add_box_outlined))],),
-      body: ListView.builder(
-          itemCount: context.watch<Store1>().post.length,
-          itemBuilder: (c, i){
-            return Container(
-                padding: EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [Icon(Icons.person_outline), Text(context.watch<Store1>().post[i]['user'].toString())]),
-                    Text(context.watch<Store1>().post[i]['content'].toString(), style: TextStyle(fontSize: 15)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(onPressed: (){
-                              // 하트 눌렀을 때 모든 게시글 하트 색이 변해서 수정해야 함
-                              context.read<Store1>().addLike(i);
-                            }, icon: Icon(Icons.favorite, color: context.watch<Store1>().likeColor),
-                            ),
-                            Text(context.watch<Store1>().post[i]['likes'].toString())
-                          ],
-                        ),
-                        IconButton(onPressed: (){
-                          // 눌렀을 때 댓글창으로 들어가지게 코드 넣었으면 좋겠음
-                        }, icon: Icon(Icons.messenger_outline)),
-                        IconButton(onPressed: (){ // 추후에 공유기능 추가
-                        }, icon: Icon(Icons.ios_share)),
-                        IconButton(onPressed: (){
-                          // 저장 기능 같은 거 추가... 추후에
-                        }, icon: Icon(Icons.bookmark_border))
-                      ],)
-                  ],
-                )
-            );
-          }) ,
-    );
-  }
-}
-
-// 글 작성화면
-class Upload extends StatelessWidget {
-  const Upload({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-          Navigator.pop(context);
-        },),
-        actions: [
-          IconButton(onPressed: (){
-            // 여기 코드 추가해야 함! 누르면 갤러리에서 사진 선택하는 거로
-          }, icon: Icon(Icons.photo_library_outlined)),
-          IconButton(onPressed: (){
-            context.read<Store1>().addPost();
-            Navigator.pop(context);
-          }, icon: Icon(Icons.send))],
-      ),
-      body: TextField(
-        onChanged: (text){ context.read<Store1>().setUserContent(text); },
-        decoration: InputDecoration(
-          hintText: '자유롭게 글을 작성하세요...',
-        ),
-        keyboardType: TextInputType.multiline,
-        maxLines: null,
-      ),
-    );
-  }
-}
-
-
-// 마이페이지
-class My extends StatelessWidget {
-  const My({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Text('여기도 아직...ㅠ');
   }
 }
