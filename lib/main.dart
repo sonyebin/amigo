@@ -182,7 +182,7 @@ class _UploadState extends State<Upload> {
                     });
                   }
                 } else if (ImageStatus.isDenied || ImageStatus.isPermanentlyDenied) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('사진 접근 권한이 필요합니다.')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('사진 접근 권한이 필요합니다...')));
                 }
 
 
