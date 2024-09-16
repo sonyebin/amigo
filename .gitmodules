@@ -1,0 +1,3 @@
+[submodule "lib/amigo"]
+	path = lib/amigo
+	url = https://github.com/fishberrypie/amigo
