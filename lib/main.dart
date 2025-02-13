@@ -5,8 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';  // provider 사용
 import 'package:permission_handler/permission_handler.dart';
 
+//기본 firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // fire store 쓰기 위해
+//import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage -> 유료라는데...
 
-void main() {
+import 'package:intl/intl.dart'; // 게시글 날짜 포맷팅 위함
+
+final firestore = FirebaseFirestore.instance;
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
       ChangeNotifierProvider(
         create: (c) => Store1(),
@@ -53,13 +67,48 @@ class Store1 extends ChangeNotifier {
     notifyListeners(); // state 사용 중인 위젯 자동 재렌더링
   }
 
-  addPost(BuildContext context){
+  /*uploadImage(File imageFile) async {
+    try {
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      // 업로드 완료 후 이미지 다운로드 URL 가져오기
+      TaskSnapshot snapshot = await uploadTask;
+      String imageUrl = await snapshot.ref.getDownloadURL();
+      return imageUrl;
+    } catch (e) {
+      print('이미지 업로드 오류: $e');
+      return ''; // 실패 시 빈 문자열 반환
+    }
+  }*/
+
+  addPost(BuildContext context) async {
     // 내용이 없을 때 게시물 추가하지 않음... 임시로 snackbar 해놨으나 나중에 변경했으면 좋겠음... 다이얼로그가 더 나을 거 같은데 안 떠서ㅜㅜ
     if ((content == null || content.isEmpty) && userImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('내용을 입력하세요.')));
     } else {
+      // firestore에 게시글 데이터 저장
+      DocumentReference docRef = await firestore.collection('posts').add({
+        'id': post.length + 1,
+        //'image': userImage, -> fire storage 하게 되면 수정
+        'likes': 0,
+        'content': content,
+        'liked': false,
+        'user': 'yes_empty',
+        'date': FieldValue.serverTimestamp(), // 작성 시간 자동 추가
+      });
+
+      // 날짜 출력 형식 포맷팅
+      String formattedDate = "";
+      DocumentSnapshot doc = await docRef.get(); // Firestore에서 데이터 가져오기
+      if (doc.exists && doc['date'] != null) {
+        DateTime dateTime = (doc['date'] as Timestamp).toDate();
+        formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+      }
+
       // 고유 id 임시 지정
-      var myData = {'id': post.length + 1, 'image':userImage, 'likes':423, 'date': 'July 25',
+      var myData = {'id': docRef.id, 'image':userImage, 'likes':0, 'date': formattedDate,
         'content': content, 'liked': false, 'user':'yes_empty'};
       post.insert(0, myData);
       notifyListeners();
@@ -74,15 +123,22 @@ class Store1 extends ChangeNotifier {
     content = text;
   }
 
-  addLike(i){
-    if(post[i]['liked']== false){
-      post[i]['liked'] = true;
-      post[i]['likes'] += 1;
-    } else {
-      post[i]['liked'] = false;
-      post[i]['likes'] -= 1;
-    }
+  addLike(i) async{
+    var postId = post[i]['id'];
+    var isLiked = post[i]['liked'];
+    var likes = post[i]['likes'];
+
+    post[i]['liked'] = !isLiked;
+    post[i]['likes'] = isLiked ? likes - 1 : likes + 1;
     notifyListeners();
+
+    // 5초 후에 Firestore에 업데이트 (최적화)
+    Future.delayed(Duration(seconds: 5), () {
+      FirebaseFirestore.instance.collection('posts').doc(postId).update({
+        'liked': post[i]['liked'],
+        'likes': post[i]['likes'],
+      });
+    });
   }
 }
 
@@ -92,7 +148,11 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('아직 아무것도...');
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("아직")
+      ),
+    );
   }
 }
 
@@ -230,7 +290,11 @@ class My extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('여기도 아직...ㅠ');
+    return Scaffold(
+      appBar: AppBar(
+          title: Text("아직")
+      ),
+    );
   }
 }
 
